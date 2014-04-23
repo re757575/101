@@ -21,7 +21,50 @@
     max-width: none;
   }
 </style>
-
+</head>
+<body>
+    <h2 class="text-info">臺北市臺北市101個觀光亮點資料</h2>
+    <div id="map-canvas"></div>
+    <div class="control-group">
+      <label style="margin-top: 5px;"><b class="text-success">地點 :&nbsp&nbsp</b></label>
+      <label class="layer-wizard-search-label">
+        <select id="search-string_0" onchange="changeMap_0(this.value);">
+          <option value="--Select--">--Select--</option>
+        </select>
+      </label> 
+    </div>
+    <div class="control-group">
+        <label class="control-label">編號<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="no"></div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">景點名稱<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="attractions"></div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">電話<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="tel"></div>
+    </div>
+      <div class="control-group">
+        <label class="control-label">網址<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="website"></div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">地址<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="addr"></div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">經緯度(地址)<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="latlng"></div>
+    </div>    
+    <div class="control-group">
+        <label class="control-label">開放時間<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="opening_hour"></div>
+    </div>
+  <div class="controls">
+       <input class="btn btn-large btn-primary" id="submitSave" type="submit"  data-loading-text="Loading..." value="送出" />
+  </div>
+</body>
 <script type="text/javascript">
     google.load('visualization', '1');
 
@@ -93,25 +136,31 @@
           };
 
             gvizQuery.send(function(response) {
+
                 var numRows = response.getDataTable().getNumberOfRows();
+                var _option = "<option value=\"--Select--\">--Select--</option>";
 
                 for (var i = 0; i < numRows; i++) {
+                    
+                    var no = response.getDataTable().getValue(i, 1);
+                    var attractions = response.getDataTable().getValue(i, 2);
+                    var tel = response.getDataTable().getValue(i, 3);
+                    var website = response.getDataTable().getValue(i, 4);
+                    var addr = response.getDataTable().getValue(i, 5);
 
-                var no = response.getDataTable().getValue(i, 1);
-                var attractions = response.getDataTable().getValue(i, 2);
-                var tel = response.getDataTable().getValue(i, 3);
-                var website = response.getDataTable().getValue(i, 4);
-                var addr = response.getDataTable().getValue(i, 5);
+                    var stringCoordinates = response.getDataTable().getValue(i, 6);
+                    var splitCoordinates = stringCoordinates.split(',');
+                    var lat = splitCoordinates[0];
+                    var lng = splitCoordinates[1];
+                    var latlng = new google.maps.LatLng(lat, lng);
 
-                var stringCoordinates = response.getDataTable().getValue(i, 6);
-                var splitCoordinates = stringCoordinates.split(',');
-                var lat = splitCoordinates[0];
-                var lng = splitCoordinates[1];
-                var latlng = new google.maps.LatLng(lat, lng);
+                    var opening_hour = response.getDataTable().getValue(i, 7);
+                        createMarker(no, attractions, tel, website, addr, latlng, opening_hour);
 
-                var opening_hour = response.getDataTable().getValue(i, 7);
-                    createMarker(no, attractions, tel, website, addr, latlng, opening_hour);
-            }
+                        _option += "<option value='" +attractions+ "'>"+attractions+ "</option>";
+                }
+
+                $("#search-string_0").html(_option);
           });
 
 
@@ -123,36 +172,8 @@
                 }
             }
     }
-    google.maps.event.addDomListener(window, 'load', initialize);
-</script>
 
-<script>
-    $(document).ready(function(){
-      
-      var queryUrlHead = 'https://www.googleapis.com/fusiontables/v1/query?sql=';
-      var queryUrlTail = '&key=AIzaSyDKkSBienkI7rkEIb0mt9A-SqEcpmsscPI';
-      var tableId = '1y6L8fEbXoOTvBar0_SUz-Qh8k6Wp0HOD4qGvMElb';
- 
-      var query = "SELECT * FROM " + tableId ;//+ " LIMIT 5";
-      var queryurl = encodeURI(queryUrlHead + query + queryUrlTail);
-      
-      var _option = "<option value=\"--Select--\">--Select--</option>";
-      var dataHandler =  function (resp){
-        //console.log(resp.rows);
-
-        var arry = resp.rows;
-        for(var k in arry) {
-          //console.log(resp.rows[k][2]);
-          _option += "<option value='" +arry[k][2]+ "'>"
-                  +arry[k][2]+ "</option>";
-        }
-        $("#search-string_0").html(_option);
-        //console.log(_option);
-      };
-
-     var jqxhr = $.get(queryurl, dataHandler, "jsonp");
-
-      $("#submitSave").click(function(){
+    $("#submitSave").click(function(){
 
         var url = "https://docs.google.com/forms/d/1q-DrIp_eRRNCmcBGNkpSWuqEV29F9b58Jno_CUO9HRo/formResponse?";
         var no = $('#no').val(); // entry.1096792292
@@ -175,51 +196,8 @@
         $.getJSON(url, function(json) {
             console.log(json);
          });
-      });
-    });
+    });  
+
+    google.maps.event.addDomListener(window, 'load', initialize);
 </script>
-</head>
-<body>
-    <h2 class="text-info">臺北市臺北市101個觀光亮點資料</h2>
-    <div id="map-canvas"></div>
-    <div class="control-group">
-      <label style="margin-top: 5px;"><b class="text-success">地點 :&nbsp&nbsp</b></label>
-      <label class="layer-wizard-search-label">
-        <select id="search-string_0" onchange="changeMap_0(this.value);">
-          <option value="--Select--">--Select--</option>
-        </select>
-      </label> 
-    </div>
-    <div class="control-group">
-        <label class="control-label">編號<span class="label label-important requiredInfo">*</span>:</label>
-        <div class="controls"><input type="text" id="no"></div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">景點名稱<span class="label label-important requiredInfo">*</span>:</label>
-        <div class="controls"><input type="text" id="attractions"></div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">電話<span class="label label-important requiredInfo">*</span>:</label>
-        <div class="controls"><input type="text" id="tel"></div>
-    </div>
-      <div class="control-group">
-        <label class="control-label">網址<span class="label label-important requiredInfo">*</span>:</label>
-        <div class="controls"><input type="text" id="website"></div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">地址<span class="label label-important requiredInfo">*</span>:</label>
-        <div class="controls"><input type="text" id="addr"></div>
-    </div>
-    <div class="control-group">
-        <label class="control-label">經緯度(地址)<span class="label label-important requiredInfo">*</span>:</label>
-        <div class="controls"><input type="text" id="latlng"></div>
-    </div>    
-    <div class="control-group">
-        <label class="control-label">開放時間<span class="label label-important requiredInfo">*</span>:</label>
-        <div class="controls"><input type="text" id="opening_hour"></div>
-    </div>
-  <div class="controls">
-       <input class="btn btn-large btn-primary" id="submitSave" type="submit"  data-loading-text="Loading..." value="送出" />
-  </div>
-</body>
 </html>
