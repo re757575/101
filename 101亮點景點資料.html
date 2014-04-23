@@ -202,6 +202,7 @@
 
     function changeMap() {
         var searchString = document.getElementById('search-string').value.replace(/'/g, "\\'");
+            map.setZoom(11);
 
         for(var i in markerArray) {
             markerArray[i].setMap(map);
@@ -215,6 +216,9 @@
 
                 if(title !== searchString) {
                     markerArray[i].setMap(null);
+                } else {
+                   map.setZoom(17);
+                   map.setCenter(markerArray[i].position);
                 }
             }
         }
