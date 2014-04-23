@@ -105,7 +105,7 @@
               icon: new google.maps.MarkerImage("https://google-developers.appspot.com/maps/documentation/javascript/examples/full/images/beachflag.png")
           });
 
-          var content = "<div class='googft-info-window'><img class='img-rounded' src='https://www2.usc.edu.tw/usc/tw/client/Images/logo.jpg'><br><b>地點:</b> {attractions}<br><b>電話:</b> {tel}<br><b>網站:</b> <a href='{url}' target='_blank'>{website}</a><br><b>地址:</b> {addr}<br><b>開放時間:</b> {opening_hour}</div>";
+          var content = "<div class='googft-info-window'><img class='img-rounded' src='http://www2.usc.edu.tw/usc/tw/client/Images/logo.jpg'><br><b>地點:</b> {attractions}<br><b>電話:</b> {tel}<br><b>網站:</b> <a href='{url}' target='_blank'>{website}</a><br><b>地址:</b> {addr}<br><b>開放時間:</b> {opening_hour}</div>";
 
               content = content.replace("{attractions}",attractions);
               content = content.replace("{tel}",tel);
@@ -141,7 +141,7 @@
                 var _option = "<option value=\"--Select--\">--Select--</option>";
 
                 for (var i = 0; i < numRows; i++) {
-                    
+
                     var no = response.getDataTable().getValue(i, 1);
                     var attractions = response.getDataTable().getValue(i, 2);
                     var tel = response.getDataTable().getValue(i, 3);
