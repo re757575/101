@@ -28,7 +28,7 @@
     <div class="control-group">
       <label style="margin-top: 5px;"><b class="text-success">地點 :&nbsp&nbsp</b></label>
       <label class="layer-wizard-search-label">
-        <select id="search-string_0" onchange="changeMap_0(this.value);">
+        <select id="search-string" onchange="changeMap(this.value);">
           <option value="--Select--">--Select--</option>
         </select>
       </label> 
@@ -68,6 +68,9 @@
 <script type="text/javascript">
     google.load('visualization', '1');
 
+    var map;
+    var markerArray = [];
+
     function initialize() {
 
           var isMobile = (navigator.userAgent.toLowerCase().indexOf('android') > -1) ||
@@ -89,7 +92,7 @@
 
           var infoWindow = new google.maps.InfoWindow();
 
-          var map = new google.maps.Map(document.getElementById('map-canvas'), {
+              map = new google.maps.Map(document.getElementById('map-canvas'), {
               center: new google.maps.LatLng(25.061571061197125, 121.53913370683586),
               zoom: 11
           });
@@ -104,6 +107,8 @@
               title: attractions,
               icon: new google.maps.MarkerImage("https://google-developers.appspot.com/maps/documentation/javascript/examples/full/images/beachflag.png")
           });
+
+          markerArray.push(marker);
 
           var content = "<div class='googft-info-window'><img class='img-rounded' src='http://www2.usc.edu.tw/usc/tw/client/Images/logo.jpg'><br><b>地點:</b> {attractions}<br><b>電話:</b> {tel}<br><b>網站:</b> <a href='{url}' target='_blank'>{website}</a><br><b>地址:</b> {addr}<br><b>開放時間:</b> {opening_hour}</div>";
 
@@ -160,7 +165,7 @@
                         _option += "<option value='" +attractions+ "'>"+attractions+ "</option>";
                 }
 
-                $("#search-string_0").html(_option);
+                $("#search-string").html(_option);
           });
 
 
@@ -197,6 +202,27 @@
             console.log(json);
          });
     });  
+
+
+    function changeMap() {
+        var searchString = document.getElementById('search-string').value.replace(/'/g, "\\'");
+
+        for(var i in markerArray) {
+            markerArray[i].setMap(map);
+        }
+
+        if (searchString != '--Select--') {
+
+            for(var i in markerArray) {
+                var title = markerArray[i].title;
+                var id = markerArray[i].__gm_id;
+
+                if(title !== searchString) {
+                    markerArray[i].setMap(null);
+                }
+            }
+        }
+    }
 
     google.maps.event.addDomListener(window, 'load', initialize);
 </script>
