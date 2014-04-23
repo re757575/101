@@ -11,15 +11,15 @@
 <meta charset="utf-8"/>
 <title>臺北市臺北市101個觀光亮點資料</title>
 <style>
-  html, body, #map-canvas {
-    height: 300px;
-    margin: 0;
-    padding: 0;
-    width: 500px;
-}
-  #map-canvas img {
-    max-width: none;
-  }
+    html, body, #map-canvas {
+        height: 300px;
+        margin: 0;
+        padding: 0;
+        width: 500px;
+    }
+    #map-canvas img {
+        max-width: none;
+    }
 </style>
 </head>
 <body>
@@ -136,9 +136,7 @@
                     map.setZoom(11);
                     map.setCenter(25.061571061197125, 121.53913370683586);
              });
-
-
-          };
+          }; // end createMarker()
 
             gvizQuery.send(function(response) {
 
@@ -166,8 +164,7 @@
                 }
 
                 $("#search-string").html(_option);
-          });
-
+            });
 
             function toggleBounce(marker) {
                 if (marker.getAnimation() != null) {
@@ -176,7 +173,7 @@
                     marker.setAnimation(google.maps.Animation.BOUNCE);
                 }
             }
-    }
+    } // end initialize()
 
     $("#submitSave").click(function(){
 
@@ -202,7 +199,6 @@
             console.log(json);
          });
     });  
-
 
     function changeMap() {
         var searchString = document.getElementById('search-string').value.replace(/'/g, "\\'");
