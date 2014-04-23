@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport"></meta>
+<meta name="description" content="101亮點景點資料" />
+<meta charset="utf-8">
+<title>臺北市臺北市101個觀光亮點資料</title>
+<style>
+  html, body, #map-canvas {
+    height: 300px;
+    margin: 0;
+    padding: 0;
+    width: 500px;
+}
+
+  #map-canvas img {
+    max-width: none;
+  }
+</style>
+<link href="pub/bootstrap/bootstrap.css" rel="stylesheet" type="text/css" />
+<script src="pub/jquery/jquery-1.9.1.min.js"></script>
+<script src="pub/bootstrap/bootstrap.js"></script>
+<script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true&language=zh-TW"></script>
+
+<script type="text/javascript">
+
+    var layer_0;
+
+    function initialize() {
+
+      var isMobile = (navigator.userAgent.toLowerCase().indexOf('android') > -1) ||
+                     (navigator.userAgent.match(/(iPod|iPhone|iPad|BlackBerry|Windows Phone|iemobile)/));
+
+      if (isMobile) {
+        var viewport = document.querySelector("meta[name=viewport]");
+        viewport.setAttribute('content', 'initial-scale=1.0, user-scalable=no');
+      }
+
+      var mapDiv = document.getElementById('map-canvas');
+          mapDiv.style.width = isMobile ? '100%' : '200%';
+          mapDiv.style.height = isMobile ? '100%' : '150%';
+
+      var map = new google.maps.Map(document.getElementById('map-canvas'), {
+          center: new google.maps.LatLng(25.061571061197125, 121.53913370683586),
+          zoom: 11
+      });
+
+      var style = [
+        {
+          featureType: 'all',
+          elementType: 'all',
+          stylers: [
+            { saturation: 3 }
+          ]
+        }
+      ];
+
+      var styledMapType = new google.maps.StyledMapType(style, {
+        map: map,
+        name: 'Styled Map'
+      });
+
+      map.mapTypes.set('map-style', styledMapType);
+      map.setMapTypeId('map-style');
+
+      layer_0 = new google.maps.FusionTablesLayer({
+        query: {
+          select: "col6",
+          from: "1y6L8fEbXoOTvBar0_SUz-Qh8k6Wp0HOD4qGvMElb"
+        },
+        map: map,
+        styleId: 5,
+        templateId: 7
+      });
+    }
+
+    function changeMap_0() {
+      var whereClause;
+      var searchString = document.getElementById('search-string_0').value.replace(/'/g, "\\'");
+      if (searchString != '--Select--') {
+        whereClause = "'attractions' = '" + searchString + "'";
+      }
+
+      layer_0.setOptions({
+        query: {
+          select: "col6",
+          from: "1y6L8fEbXoOTvBar0_SUz-Qh8k6Wp0HOD4qGvMElb",
+          where: whereClause
+        }
+      });
+    }
+    google.maps.event.addDomListener(window, 'load', initialize);
+</script>
+    
+<script>
+    $(document).ready(function(){
+      
+      var queryUrlHead = 'https://www.googleapis.com/fusiontables/v1/query?sql=';
+      var queryUrlTail = '&key=AIzaSyDKkSBienkI7rkEIb0mt9A-SqEcpmsscPI';
+      var tableId = '1y6L8fEbXoOTvBar0_SUz-Qh8k6Wp0HOD4qGvMElb';
+ 
+      var query = "SELECT * FROM " + tableId ;//+ " LIMIT 5";
+      var queryurl = encodeURI(queryUrlHead + query + queryUrlTail);
+      
+      var _option = "<option value=\"--Select--\">--Select--</option>";
+      var dataHandler =  function (resp){
+        //console.log(resp.rows);
+       
+        var arry = resp.rows;
+        for(var k in arry) {
+          //console.log(resp.rows[k][2]);
+          _option += "<option value='" +arry[k][2]+ "'>"
+                  +arry[k][2]+ "</option>";
+        }
+        $("#search-string_0").html(_option);
+        console.log(_option);
+      };
+       
+     var jqxhr = $.get(queryurl, dataHandler, "jsonp");
+
+      $("#submitSave").click(function(){
+
+        var url = "https://docs.google.com/forms/d/1q-DrIp_eRRNCmcBGNkpSWuqEV29F9b58Jno_CUO9HRo/formResponse?";
+        var no = $('#no').val(); // entry.1096792292
+        var attractions = $('#attractions').val(); // entry.737769885
+        var tel = $('#tel').val(); // entry.1929070278
+        var website = $('#website').val(); // entry.180511484
+        var addr = $('#addr').val(); // entry.1607815491
+        var latlng = $('#latlng').val(); // entry.1096010101
+        var opening_hour = $('#opening_hour').val(); // entry.1925410026
+
+        url += 'entry.1096792292='+no;
+        url += '&entry.737769885='+attractions;
+        url += '&entry.1929070278='+tel;
+        url += '&entry.180511484='+website;
+        url += '&entry.1607815491='+addr;
+        url += '&entry.1096010101='+latlng;
+        url += '&entry.1925410026='+opening_hour;
+        url += '&callback=?';
+        
+        $.getJSON(url, function(json) {
+            console.log(json);
+         });
+      });
+
+    });
+
+
+
+ </script>
+    
+</head>
+<body>
+    <h2 class="text-info">臺北市臺北市101個觀光亮點資料</h2>
+    <div id="map-canvas"></div>
+    <div class="control-group">
+      <label style="margin-top: 5px;"><b class="text-success">地點 :&nbsp&nbsp</b></label>
+      <label class="layer-wizard-search-label">
+        <select id="search-string_0" onchange="changeMap_0(this.value);">
+          <option value="--Select--">--Select--</option>
+        </select>
+      </label> 
+    </div>
+    <div class="control-group">
+        <label class="control-label">編號<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="no"></div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">景點名稱<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="attractions"></div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">電話<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="tel"></div>
+    </div>
+      <div class="control-group">
+        <label class="control-label">網址<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="website"></div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">地址<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="addr"></div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">經緯度(地址)<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="latlng"></div>
+    </div>    
+    <div class="control-group">
+        <label class="control-label">開放時間<span class="label label-important requiredInfo">*</span>:</label>
+        <div class="controls"><input type="text" id="opening_hour"></div>
+    </div>
+  <div class="controls">
+       <input class="btn btn-large btn-primary" id="submitSave" type="submit"  data-loading-text="Loading..." value="送出" />
+  </div>    
+  </body>
+</html>
