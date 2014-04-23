@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport"></meta>
-<meta name="description" content="101亮點景點資料" />
+<meta name="description" content="101亮點景點資料 2.0" />
 <meta charset="utf-8">
 <title>臺北市臺北市101個觀光亮點資料</title>
 <style>
@@ -21,8 +21,9 @@
 <script src="pub/jquery/jquery-1.9.1.min.js"></script>
 <script src="pub/bootstrap/bootstrap.js"></script>
 <script type="text/javascript" src="https://maps.google.com/maps/api/js?sensor=true&language=zh-TW"></script>
-
+<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 <script type="text/javascript">
+    google.load('visualization', '1');
 
     var layer_0;
 
@@ -40,55 +41,89 @@
           mapDiv.style.width = isMobile ? '100%' : '200%';
           mapDiv.style.height = isMobile ? '100%' : '150%';
 
+      var url = "http://www.google.com/fusiontables/gvizdata?tq=";
+      var query ="SELECT * FROM 1y6L8fEbXoOTvBar0_SUz-Qh8k6Wp0HOD4qGvMElb ORDER BY no";
+          query = encodeURIComponent(query);
+      var gvizQuery = new google.visualization.Query(url+query);
+
+      var infoWindow = new google.maps.InfoWindow();
+
       var map = new google.maps.Map(document.getElementById('map-canvas'), {
           center: new google.maps.LatLng(25.061571061197125, 121.53913370683586),
           zoom: 11
       });
 
-      var style = [
-        {
-          featureType: 'all',
-          elementType: 'all',
-          stylers: [
-            { saturation: 3 }
-          ]
+      var createMarker = function(no, attractions, tel, website,
+                                  addr, latlng, opening_hour) {
+          //console.log(latlng);
+
+      var marker = new google.maps.Marker({
+          map: map,
+          position: latlng,
+          title: attractions,
+          icon: new google.maps.MarkerImage("https://google-developers.appspot.com/maps/documentation/javascript/examples/full/images/beachflag.png")
+      });
+
+      var content = "<div class='googft-info-window'><img class='img-rounded' src='http://www2.usc.edu.tw/usc/tw/client/Images/logo.jpg'><br><b>地點:</b> {attractions}<br><b>電話:</b> {tel}<br><b>網站:</b> <a href='{url}' target='_blank'>{website}</a><br><b>地址:</b> {addr}<br><b>開放時間:</b> {opening_hour}</div>";
+
+          content = content.replace("{attractions}",attractions);
+          content = content.replace("{tel}",tel);
+          content = content.replace("url",website);
+          content = content.replace("{website}",website);
+          content = content.replace("{addr}",addr);
+          content = content.replace("{opening_hour}",opening_hour);
+
+         google.maps.event.addListener(marker, 'click', function(event) {
+
+              map.setZoom(16);
+              map.setCenter(latlng);
+
+              var newlatlng = new google.maps.LatLng(latlng.k+0.0004,latlng.A);
+
+              infoWindow.setPosition(newlatlng);
+              infoWindow.setContent(content);
+              infoWindow.open(map, this);
+              toggleBounce(marker);
+          });
+
+        google.maps.event.addListener(infoWindow, 'closeclick', function(){
+           this.close();
+            map.setZoom(11);
+            map.setCenter(25.061571061197125, 121.53913370683586);
+         });
+      };
+
+      gvizQuery.send(function(response) {
+          var numRows = response.getDataTable().getNumberOfRows();
+
+          for (var i = 0; i < numRows; i++) {
+
+            var no = response.getDataTable().getValue(i, 1);
+            var attractions = response.getDataTable().getValue(i, 2);
+            var tel = response.getDataTable().getValue(i, 3);
+            var website = response.getDataTable().getValue(i, 4);
+            var addr = response.getDataTable().getValue(i, 5);
+
+            var stringCoordinates = response.getDataTable().getValue(i, 6);
+            var splitCoordinates = stringCoordinates.split(',');
+            var lat = splitCoordinates[0];
+            var lng = splitCoordinates[1];
+            var latlng = new google.maps.LatLng(lat, lng);
+
+            var opening_hour = response.getDataTable().getValue(i, 7);
+                createMarker(no, attractions, tel, website, addr, latlng, opening_hour);
+
+          }
+      });
+
+      function toggleBounce(marker) {
+        if (marker.getAnimation() != null) {
+          marker.setAnimation(null);
+        } else {
+          marker.setAnimation(google.maps.Animation.BOUNCE);
         }
-      ];
-
-      var styledMapType = new google.maps.StyledMapType(style, {
-        map: map,
-        name: 'Styled Map'
-      });
-
-      map.mapTypes.set('map-style', styledMapType);
-      map.setMapTypeId('map-style');
-
-      layer_0 = new google.maps.FusionTablesLayer({
-        query: {
-          select: "col6",
-          from: "1y6L8fEbXoOTvBar0_SUz-Qh8k6Wp0HOD4qGvMElb"
-        },
-        map: map,
-        styleId: 5,
-        templateId: 7
-      });
-    }
-
-    function changeMap_0() {
-      var whereClause;
-      var searchString = document.getElementById('search-string_0').value.replace(/'/g, "\\'");
-      if (searchString != '--Select--') {
-        whereClause = "'attractions' = '" + searchString + "'";
       }
 
-      layer_0.setOptions({
-        query: {
-          select: "col6",
-          from: "1y6L8fEbXoOTvBar0_SUz-Qh8k6Wp0HOD4qGvMElb",
-          where: whereClause
-        }
-      });
-    }
     google.maps.event.addDomListener(window, 'load', initialize);
 </script>
     
@@ -113,13 +148,12 @@
                   +arry[k][2]+ "</option>";
         }
         $("#search-string_0").html(_option);
-        console.log(_option);
+        //console.log(_option);
       };
        
      var jqxhr = $.get(queryurl, dataHandler, "jsonp");
 
       $("#submitSave").click(function(){
-
         var url = "https://docs.google.com/forms/d/1q-DrIp_eRRNCmcBGNkpSWuqEV29F9b58Jno_CUO9HRo/formResponse?";
         var no = $('#no').val(); // entry.1096792292
         var attractions = $('#attractions').val(); // entry.737769885
@@ -142,11 +176,7 @@
             console.log(json);
          });
       });
-
     });
-
-
-
  </script>
     
 </head>
